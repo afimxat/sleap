@@ -1,0 +1,15 @@
+start1fr=table2array(t1(1,1))*25;
+
+pos=table2array(t1(:,2:3));
+pos=normalize(pos,1,"range",[0 100]);
+
+pos(isnan(pos)) = -1;
+
+% Open a file for writing
+fileID = fopen('output.txt', 'w');
+
+% Write the array to the file (assuming you want space-separated values)
+fprintf(fileID, '%f %f\n', pos');
+
+% Close the file
+fclose(fileID);

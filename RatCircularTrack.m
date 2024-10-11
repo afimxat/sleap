@@ -4,6 +4,7 @@ classdef RatCircularTrack < SleapHDF5Loader
         PositionTable
         Center
         Radius
+        HeadDirection
     end
 
     methods
@@ -34,7 +35,7 @@ classdef RatCircularTrack < SleapHDF5Loader
 
         % Example method to calculate center of circular track
         function obj = plotRawTime(obj)
-            pbaspect([20 1 1])
+            pbaspect([15 1 1])
             hold on
             pt=obj.PositionTable;
             color1=linspecer(20,'sequential');
@@ -59,16 +60,10 @@ classdef RatCircularTrack < SleapHDF5Loader
             ax.YLim=[0 1000];
             ax.ZLim=[0 1000];
         end        % Example method to calculate center of circular track
-        function obj = plotAngleTime(obj)
-            ax=gca;
-            pbaspect([20 1 1])
-            hold on
+        function pos = getAngularPosition(obj)
             pt=obj.PositionTable;
-            color1=linspecer(20,'sequential');
-            size1=[5 5 1 1]*3;
-            alpha=[.1 .5 .1 .1];
-            fr=25;
             nodes=unique(pt.Node);
+            pos=[];
             for inode=1:numel(nodes)
                 pt1=pt(pt.Node==inode,:);
                 x1=pt1.XCoordinate;
@@ -82,18 +77,27 @@ classdef RatCircularTrack < SleapHDF5Loader
                 % Convert the angle to degrees
                 angleDegrees = rad2deg(angleRadians);
                 % Adjust angles to be within the range [0, 360) if necessary
-                % angleDegrees = mod(angleDegrees, 360);
+                pos=[pos;angleDegrees]; %#ok<AGROW>
+            end
+        end
+        function obj = plotAngleTime(obj)
+            pbaspect([15 1 1])
+            hold on
+            pt=obj.PositionTable;
+            color1=linspecer(20,'sequential');
+            size1=[5 5 1 1]*3;
+            alpha=[.1 .5 .1 .1];
+            fr=25;
+            nodes=unique(pt.Node);
+            for inode=1:numel(nodes)
+                pt1=pt(pt.Node==inode,:);
                 time1=pt1.Frame/fr/60;
-                scatter(time1,angleDegrees,size1(inode),color1(inode,:), ...
+                scatter(time1,pt1.AngularPosition,size1(inode),color1(inode,:), ...
                     "filled", MarkerEdgeAlpha=alpha(inode),MarkerFaceAlpha=alpha(inode))
             end
         end
-        function obj = plotHeadDirectionColor(obj)
-            ax=gca;
-            pbaspect([20 1 1])
-            hold on
+        function [mx,my]= getHeadPositionAbsolute(obj)
             pt=obj.PositionTable;
-            fr=25;
             pt1=pt(pt.Node==1,:);
             x1=pt1.XCoordinate;
             y1=pt1.YCoordinate;
@@ -103,6 +107,9 @@ classdef RatCircularTrack < SleapHDF5Loader
             % Step 1: Calculate the midpoint M
             mx = (x1 + x2) / 2;
             my = (y1 + y2) / 2;
+        end
+        function angleDegrees = getHeadPositionAngle(obj)
+            [mx,my]=obj.getHeadPositionAbsolute;
             % Adjust coordinates to be relative to the center
             x_relative = mx - obj.Center(1);
             y_relative = my - obj.Center(2);
@@ -111,26 +118,40 @@ classdef RatCircularTrack < SleapHDF5Loader
             angleRadians = -atan2(y_relative, x_relative);
             % Convert the angle to degrees
             angleDegrees = rad2deg(angleRadians);
-
+        end
+        function vectorAngleDegrees = getHeadDirection(obj)
+            pt=obj.PositionTable;
+            pt1=pt(pt.Node==1,:);
+            x1=pt1.XCoordinate;
+            y1=pt1.YCoordinate;
+            pt2=pt(pt.Node==2,:);
+            x2=pt2.XCoordinate;
+            y2=pt2.YCoordinate;
             % Step 2: Calculate the direction (angle) of the vector from P1 to P2
             vectorAngleDegrees = rad2deg(atan2(y2 - y1, x2 - x1));
 
-            % Calculate vector from center to midpoint
-            cx = mx - obj.Center(1);
-            cy = my - obj.Center(2);
-
-            % Calculate the direction (angle) of this vector
-            centerToMidpointAngleDegrees = rad2deg(atan2(cy, cx));
-
-            % Step 3: Calculate the angle between the two vectors
-            angleBetweenVectors = mod(centerToMidpointAngleDegrees - vectorAngleDegrees, 360);
-
+        end
+        function obj = plotHeadDirectionColor(obj)
+            ax=gca;
+            pbaspect([20 1 1])
+            hold on
+            fr=25;
+            angleDegrees=obj.getHeadPositionAngle;
+            [colorVector, hsvColors]= obj.getDirectionColor;
             % % Ensure the angle is within the range [0, 180]
             % if angleBetweenVectors > 180
             %     angleBetweenVectors = 360 - angleBetweenVectors;
             % end
+            time1=obj.PositionTable(obj.PositionTable.Node==1,:).Frame/fr/60;
+            s=scatter(time1,angleDegrees,ones(size(time1))*5,colorVector, ...
+                "filled", MarkerEdgeAlpha=.2,MarkerFaceAlpha=.2);
+            colormap(hsvColors);
+            cb=colorbar;cb.Ticks=[0 .25 .5 .75 1]; cb.TickLabels={'Inside', 'Reverse', 'Outside','Forward','Inside'};
+        end
+        function [colorVector, hsvColors]= getDirectionColor(obj)
+
             % Normalize angle to [0, 1]
-            normalizedAngle = angleBetweenVectors / 360;
+            normalizedAngle = obj.HeadDirection / 360;
 
             % Generate HSV colormap
             numColors = 256; % You can adjust the number of colors
@@ -141,17 +162,10 @@ classdef RatCircularTrack < SleapHDF5Loader
             colorIndices = ceil(normalizedAngle * (numColors - 1)) + 1;
             colorIndices(isnan(colorIndices))=1;
             colorVector = hsvColors(colorIndices, :);
-
-            time1=pt1.Frame/fr/60;
-            scatter(time1,angleDegrees,ones(size(time1))*5,colorVector, ...
-                "filled", MarkerEdgeAlpha=.2,MarkerFaceAlpha=.2)
         end
-        function obj = plotHeadDirection(obj)
-            ax=gca;
-            pbaspect([20 1 1])
-            hold on
+
+        function angleBetweenVectors = getHeadDirectionRelativeToCenter(obj)
             pt=obj.PositionTable;
-            fr=25;
             pt1=pt(pt.Node==1,:);
             x1=pt1.XCoordinate;
             y1=pt1.YCoordinate;
@@ -182,7 +196,18 @@ classdef RatCircularTrack < SleapHDF5Loader
 
             % Step 3: Calculate the angle between the two vectors
             angleBetweenVectors = mod(centerToMidpointAngleDegrees - vectorAngleDegrees, 360);
+        end
+        function angularSpeed = getAngularSpeed(obj)
+           
+        end
+        function obj = plotHeadDirection(obj)
+            pbaspect([20 1 1])
+            hold on
+            pt=obj.PositionTable;
+            fr=25;
+            pt1=pt(pt.Node==1,:);
 
+            angleBetweenVectors=obj.getHeadDirectionRelativeToCenter;
             % Normalize angle to [0, 1]
             normalizedAngle = angleBetweenVectors / 360;
 
@@ -200,13 +225,23 @@ classdef RatCircularTrack < SleapHDF5Loader
 
             scatter(time1,abs(mod(angleBetweenVectors+180,360)-180),ones(size(time1))*5,colorVector, ...
                 "filled", MarkerEdgeAlpha=.2,MarkerFaceAlpha=.2)
+            colormap(hsvColors);
+            cb=colorbar;cb.Ticks=[0 .25 .5 .75 1]; cb.TickLabels={'Inside', 'Reverse', 'Outside','Forward','Inside'};
+            ax=gca;
+            ax.YTick=[0 90 180];ax.YTickLabel={'Inside', 'Straight', 'Outside'};
+            yline([90]);
         end
         % Example method to calculate center of circular track
         function obj = setCenter(obj,center)
             obj.Center=center;
+            obj=obj.setAngularPosition(obj.getAngularPosition);
+            obj.HeadDirection=obj.getHeadDirectionRelativeToCenter();
         end
-        function obj = getHeadPosition(obj)
+        function obj = setAngularPosition(obj,pos)
+            T=table(pos,'VariableNames',{'AngularPosition'});
+            obj.PositionTable=[obj.PositionTable T];
         end
+
         % Example method to calculate center of circular track
         function obj = calculateTrackCenter(obj)
             % Dummy implementation - replace with actual calculation

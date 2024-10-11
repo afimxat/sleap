@@ -1,32 +1,51 @@
-
-
-folder='D:\sleap\TrackModels\export';
-filename1="labels.v002.004" + ...
-    "_Basler_acA4024-29um__24844056__20240124_142448039_1.analysis.h5";
-filepath=fullfile(folder,filename1);
-ratontrack = RatCircularTrack(filepath);
-ratontrack=ratontrack.setCenter([550 500]);
-ff=logistics.FigureFactory.instance(folder);ff.ext={'.png'};ff.resolution=600;
-figure(1);clf
-% ratontrack1=ratontrack.getHeadPosition
-ax=gca;
-ax.ZDir="reverse";
-ax.XDir="reverse";
-ratontrack.plotRawTime;
-view(90,-60)
-ff.save(strcat(filename1,'_raw.png'))
-figure(2);clf; tiledlayout("vertical","TileSpacing","none");t1=nexttile;
-ratontrack.plotRawTime;
-view(-30,0)
-t2=nexttile;
-ratontrack.plotAngleTime;
-t3=nexttile;
-ratontrack.plotHeadDirectionColor;
-t4=nexttile;
-ratontrack.plotHeadDirection;
-linkaxes([t1 t2 t3 t4],'x')
-ff.save(strcat(filename1,'_angle+direction.png'))
-
+filestable=readtable("files.csv",Delimiter=',');
+% folder='E:\sleap\ModelSfn\export';
+% files=dir(fullfile(folder,'*.h5'));
+for ifile=1:height(filestable)
+    fileexp=dir(char(filestable(ifile,:).export));
+    filevid=dir(char(filestable(ifile,:).video));
+    relativeTime=seconds(filestable(ifile,:).relativeTime);
+    filenameexp=fileexp(ifile).name;
+    folderexp=fileexp(ifile).folder;
+    filenamevid=filevid(ifile).name;
+    foldervid=filevid(ifile).folder;
+    filepathexp=fullfile(folderexp,filenameexp);
+    filepathvid=fullfile(foldervid,filenamevid);
+    videoWithLabels=VideoWithLabels(filepathvid,filepathexp);
+    ratontrack = RatCircularTrack(filepathexp);
+    ratontrack=ratontrack.setCenter([500 500]);
+    ff=logistics.FigureFactory.instance(folderexp);ff.ext={'.png'};ff.resolution=600;
+    figure(1);clf
+    % ratontrack1=ratontrack.getHeadPosition
+    ax=gca;
+    ax.ZDir="reverse";
+    ax.XDir="reverse";
+    ratontrack.plotRawTime;
+    view(90,-60)
+    ff.save(strcat(filenameexp,'_raw.png'))
+    figure(2);clf; tiledlayout("vertical","TileSpacing","none");t1=nexttile;
+    ratontrack.plotRawTime;xlabel('Time (m)')
+    view(-30,0)
+    t2=nexttile;
+    ratontrack.plotAngleTime;xlabel('Time (m)');ylabel('Angular Position');
+    ylim([-180 180]);
+    t3=nexttile;
+    ratontrack.plotHeadDirectionColor;ylabel('Angular Position');
+    ylim([-180 180])
+    t4=nexttile;
+    ratontrack.plotHeadDirection;ylabel('Head Direction');
+    ylim([0 180])
+    linkaxes([t1 t2 t3 t4],'x')
+    ff.save(strcat(filenameexp,'_angle+direction.png'))
+    [headPosAbsX, headPosAbsY]=ratontrack.getHeadPositionAbsolute;
+    headDirRel=ratontrack.getHeadDirectionRelativeToCenter;
+    headPosAng=ratontrack.getHeadPositionAngle;
+    TimeRelativeSec=(1:numel(headPosAbsX))/25+seconds(relativeTime);
+    t1=array2table([TimeRelativeSec' headPosAbsX headPosAbsY ...
+        headDirRel headPosAng],"VariableNames",{'TimeRelativeSec', ...
+        'headPosAbsX','headPosAbsY','headDirRel','headPosAng'});
+    save(strcat(fullfile(folderexp,filenameexp),'_position.mat'),'t1')
+end
 % head=ratontrack.getHeadPosition;
 % 
 % % Number of frames

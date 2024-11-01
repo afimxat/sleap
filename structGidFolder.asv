@@ -1,5 +1,5 @@
 chans=[]; 
-st=seconds(minutes(134)+seconds(35)); dur=6;
+st=seconds(minutes(134)+seconds(35)); dur=600;
 interval1=[st st+dur];
 winLen=.01;slide=.0005;
 
@@ -19,6 +19,9 @@ basePathXML.hc='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc_1250Hz.xml';
 lfp1.hc=lfp.File(basePathLFP.hc,basePathXML.hc);
 chm.hc=lfp1.hc.getChannelsWithInterval(1:8:lfp1.hc.xmlParams.nChannels,interval1);
 
+% Save chm.hc in EDF file format
+edfFileName = 'R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc.edf';
+chm.hc.saveToEDF(edfFileName);
 basePathLFP.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.dat';
 basePathXML.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.xml';
 lfp1.mic=lfp.File(basePathLFP.mic,basePathXML.mic);
@@ -48,7 +51,7 @@ color.hc=colors(3,:);
 color.mic=colors(5,:);
 color.pos=colors(4,:);
 figure(1);clf;
-f=gcf;f.OuterPosition=[2100 500 800 1000];
+f=gcf;f.OuterPosition=[2100 500 1000 800];
 tl=tiledlayout(20,1);np=1;
 ax(np)=nexttile(1,[1 1]);np=np+1;
 p=chm.micfilt.plot(color.mic,1);
@@ -89,23 +92,29 @@ figure(2);clf;
 f=gcf;f.OuterPosition=[2100 0 1000 1300];
 
 tl=tiledlayout(20,1);np=1;
-ax(np)=nexttile(1,[8 1]);np=np+1;
+ax(np)=nexttile(1,[1 1]);np=np+1;
+chm.michilb.plot(color.mic,8)
+ylabel('Mic Pow.')
+ax1=gca;ax1.XTickLabel=[];ax1.YTickLabel=[];
+
+ax(np)=nexttile(2,[8 1]);np=np+1;
 units.aud.plotRaster(color.aud)
 ylabel('Aud Ctx')
 ax(np-1).YTick=20:20:300;
+ax1=gca;ax1.XTickLabel=[];
 
-ax(np)=nexttile(9,[1 1]);np=np+1;
-chm.michilb.plot(color.mic,1)
-ylabel('Mic Pow.')
 ax(np)=nexttile(10,[7 1]);np=np+1;
 units.vis.plotRaster(color.vis)
 ylabel('Vis Ctx')
 ax(np-1).YTick=20:20:300;
+ax1=gca;ax1.XTickLabel=[];
 
 ax(np)=nexttile(17,[3 1]);np=np+1;
 pos2.plotAngularPos(color.pos)
 ax(np-1).YTick=[0 120 240 360];
 ylabel('Position_{angular} (deg)');
+ax1=gca;ax1.XTickLabel=[];
+
 ax(np)=nexttile(20,[1 1]);np=np+1;
 pos2.plotAngularVel(color.pos)
 ylabel('V_{angular} (deg/s)')
@@ -113,7 +122,7 @@ for isp=1:np-1
     ax(isp).Box="off";
     ax(isp).Color="none";
 end
-    
+    xlabel('Time (s)')
 tl.TileSpacing="none";
 linkaxes(ax(:),'x');
 ff.save('f2')

@@ -1,5 +1,5 @@
 chans=[]; 
-st=seconds(minutes(134)+seconds(35)); dur=6;
+st=seconds(minutes(134)+seconds(35)); dur=600;
 interval1=[st st+dur];
 winLen=.01;slide=.0005;
 
@@ -19,6 +19,9 @@ basePathXML.hc='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc_1250Hz.xml';
 lfp1.hc=lfp.File(basePathLFP.hc,basePathXML.hc);
 chm.hc=lfp1.hc.getChannelsWithInterval(1:8:lfp1.hc.xmlParams.nChannels,interval1);
 
+% Save chm.hc in EDF file format
+edfFileName = 'R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc.edf';
+chm.hc.saveToEDF(edfFileName);
 basePathLFP.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.dat';
 basePathXML.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.xml';
 lfp1.mic=lfp.File(basePathLFP.mic,basePathXML.mic);

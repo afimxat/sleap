@@ -40,6 +40,7 @@ classdef ChannelMulti
             ax.XLim=[obj.time(1) obj.time(end)];
         end
         function obj = getDetrend(obj)
+            ft_defaults;
             obj.data=ft_preproc_detrend(obj.data);
         end
         function sr = getSampleRate(obj)
@@ -72,7 +73,20 @@ classdef ChannelMulti
             obj.time=double(frameSize/2:slide:(size(obj.data,2)-frameSize/2))/obj.getSampleRate+obj.time(1);
             obj.data=powerValues;
         end
+        function saveToEDF(obj, filename)
+            % Save the object's data to an EDF (European Data Format) file
+            % Create a structure to hold the EDF data
+            hdr = [];
+            hdr.Fs = obj.getSampleRate; % Sampling rate
+            hdr.nChans = numel(obj.channels); % Number of channels
+            hdr.label = arrayfun(@(x) ['Ch' num2str(x)], obj.channels, 'UniformOutput', false); % Channel labels
+            hdr.duration = length(obj.time) / hdr.Fs; % Duration of the recording
+            hdr.orig = 'MATLAB'; % Origin of the data
 
+            % Save the data to EDF file
+            data = obj.data;
+            savesignal(filename, data, hdr);
+        end
 
     end
 end

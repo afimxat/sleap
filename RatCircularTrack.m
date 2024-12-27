@@ -244,10 +244,19 @@ classdef RatCircularTrack < SleapHDF5Loader
 
         % Example method to calculate center of circular track
         function obj = calculateTrackCenter(obj)
-            % Dummy implementation - replace with actual calculation
-            obj.CenterCoordinates = [0, 0]; % This would be replaced with actual calculations
-        end
+            % Calculate the center of the circular track
+            pt = obj.PositionTable;
+            xCoordinates = pt.XCoordinate;
+            yCoordinates = pt.YCoordinate;
 
+            % Use the mean of the coordinates as an estimate for the center
+            centerX = mean(xCoordinates);
+            centerY = mean(yCoordinates);
+
+            % Set the center property
+            obj.Center = [centerX, centerY];
+        end
+       
         % Example method to calculate radius of circular track
         function obj = calculateTrackRadius(obj)
             % Dummy implementation - replace with actual calculation

@@ -1,13 +1,13 @@
 classdef VideoWithLabels
     %VIDEOWITHLABELS Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties
         video
         labels
         relativeTime
     end
-    
+
     methods
         function obj = VideoWithLabels(videoFile,exportFile)
             %VIDEOWITHLABELS Construct an instance of this class
@@ -16,11 +16,11 @@ classdef VideoWithLabels
             ratontrack = RatCircularTrack(exportFile);
             obj.labels=ratontrack.setCenter([500 500]);
         end
-        
+
         function outputvidpath = getVideoFor(obj,time)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
-            framenumbers=seconds([time(1) time(1)+time(2)])*obj.video.FrameRate;
+            framenumbers=round(seconds([time(1) time(1)+time(2)])*obj.video.FrameRate);
             framelist=framenumbers(1):framenumbers(2);
             a=obj.video.read(framenumbers);
             lbl=obj.labels;
@@ -76,6 +76,14 @@ classdef VideoWithLabels
                 writeVideo(outputVideo, frame1);
             end
             close(outputVideo);
+        end
+
+        function outputvidpath = getVideoForRelativeTime(obj,time)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
+            timest=time(1)-obj.relativeTime;
+            dur=time(2);
+            outputvidpath=obj.getVideoFor([timest dur]);
         end
     end
 end

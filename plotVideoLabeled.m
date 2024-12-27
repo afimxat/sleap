@@ -4,4 +4,7 @@ matFile='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/video/labels.v001.005_B
 load(matFile);
 vidLabel=VideoWithLabels(VideoFile,exportFile);
 vidLabel.relativeTime=seconds(t1.TimeRelativeSec(1));
-vidLabel.getVideoFor([minutes(22)+seconds(53) seconds(15)])
+
+st=minutes(134)+seconds(29); durar3=seconds(15);
+
+vidLabel.getVideoForRelativeTime([st dur])

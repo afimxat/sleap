@@ -1,5 +1,5 @@
 chans=[]; 
-st=seconds(minutes(134)+seconds(29)); dur=15;
+st=seconds(minutes(134)+seconds(35)); dur=0;
 interval1=[st st+dur];
 winLen=.01;slide=.0005;
 
@@ -82,7 +82,7 @@ end
     
 tl.TileSpacing="none";
 linkaxes(ax(:),'x');
-% ff.save('f1')
+ff.save('f1')
 %%
 clear ax
 
@@ -123,4 +123,4 @@ end
     xlabel('Time (s)')
 tl.TileSpacing="none";
 linkaxes(ax(:),'x');
-% ff.save('f2')
+ff.save('f2')

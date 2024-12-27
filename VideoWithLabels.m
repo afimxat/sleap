@@ -5,6 +5,7 @@ classdef VideoWithLabels
     properties
         video
         labels
+        relativeTime
     end
     
     methods

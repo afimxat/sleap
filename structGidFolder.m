@@ -20,8 +20,6 @@ lfp1.hc=lfp.File(basePathLFP.hc,basePathXML.hc);
 chm.hc=lfp1.hc.getChannelsWithInterval(1:8:lfp1.hc.xmlParams.nChannels,interval1);
 
 % Save chm.hc in EDF file format
-edfFileName = 'R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc.edf';
-chm.hc.saveToEDF(edfFileName);
 basePathLFP.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.dat';
 basePathXML.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.xml';
 lfp1.mic=lfp.File(basePathLFP.mic,basePathXML.mic);

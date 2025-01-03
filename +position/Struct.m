@@ -36,12 +36,17 @@ classdef Struct
         function obj = plotAngularVel(obj,color)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
+            [headVel, time]=obj.getAngularVel;
+            plot(time,headVel,'Color',color);
+        end        
+        function [headVel, time]= getAngularVel(obj)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
             t1=obj.table;
             time=t1.TimeRelativeSec';
             headPos=t1.headPosAngNormalized';
             velt=diff(headPos);
             headVel=smooth([velt velt(end)],8)/median(diff(time));
-            plot(time,headVel,'Color',color);
         end
    end
 end

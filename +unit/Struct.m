@@ -26,6 +26,25 @@ classdef Struct
             idx=st.SpikeTimes>win(1)&st.SpikeTimes<win(2);
             obj.SpikeTableInSec(~idx,:)=[];
         end
+ 
+        function firingRates = getFiringRates(obj,entireWindow, winSize)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
+            st=obj.SpikeTableInSec;
+            units=unique(st.SpikeCluster);
+            firingRates = []; % Initialize firingRates
+            for iun=1:numel(units)
+                unit=units(iun);
+                unidx=st.SpikeCluster==unit;
+                spikes=seconds(st.SpikeTimes(unidx));
+                fr = [];
+                for t = entireWindow
+                    fr = [fr; sum(spikes >= (t-winSize/4) & spikes < (t + winSize*3/4))];
+                end
+                fr=fr/seconds(winSize);
+                firingRates = [firingRates; fr']; % Collect firing rates
+            end
+        end
         function obj = plotRaster(obj,color)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here

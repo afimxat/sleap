@@ -1,5 +1,5 @@
 chans=[]; 
-st=seconds(minutes(134)+seconds(29)); dur=20;
+st=seconds(minutes(221)+seconds(55)); dur=1;
 interval1=[st st+dur];
 winLen=.01;slide=.0005;
 
@@ -17,7 +17,7 @@ chm.vis=lfp1.vis.getChannelsWithInterval(1:8:lfp1.vis.xmlParams.nChannels,interv
 basePathLFP.hc='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc_1250Hz.lfp';
 basePathXML.hc='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/hc_1250Hz.xml';
 lfp1.hc=lfp.File(basePathLFP.hc,basePathXML.hc);
-chm.hc=lfp1.hc.getChannelsWithInterval(1:8:lfp1.hc.xmlParams.nChannels,interval1);
+chm.hc=lfp1.hc.getChannelsWithInterval((123-31:3:123-2)-26,interval1);
 
 % Save chm.hc in EDF file format
 basePathLFP.mic='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/mic.dat';
@@ -36,20 +36,21 @@ unitFile.vis='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/units/vis.mat';
 units1=unit.Struct(unitFile.vis);
 units.vis=units1.getwindow(interval1);
 
-posFile='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/video/labels.v001.005_Basler_acA4024-29um__24844056__20240524_113617106_Sleap export.analysis.h5_position.mat';
+posFile='R:\DataBackup\RothschildLab\utku\Gideon\c4-5-24\video\labels.v001.006_Basler_acA4024-29um__24844056__20240524_135134482_Sleap export.analysis.h5_position.mat';
 pos1=position.Struct(posFile);
 pos2=pos1.getwindow(interval1);
 pos2.table.headPosAngNormalized=movmedian(pos2.table.headPosAngNormalized,[5 5],'omitmissing');
-%%
-ff=logistics.FigureFactory.instance('H:\My Drive\umich\Gid\SfN 24\poster')
+
+ff=logistics.FigureFactory.instance('E:\sleap\matlab');
 colors=colororder;
 color.aud=colors(1,:);
 color.vis=colors(2,:);
 color.hc=colors(3,:);
 color.mic=colors(5,:);
 color.pos=colors(4,:);
+
 figure(1);clf;
-f=gcf;f.OuterPosition=[2100 500 1000 800];
+f=gcf;f.OuterPosition=[1100 500 1000 800];
 tl=tiledlayout(20,1);np=1;
 ax(np)=nexttile(1,[1 1]);np=np+1;
 p=chm.micfilt.plot(color.mic,1);
@@ -61,17 +62,17 @@ ylabel('Mic Power')
 ax1=gca;ax1.XTickLabel=[];ax1.YTick=[];
 
 ax(np)=nexttile(3,[6 1]);np=np+1;
-p=chm.aud.plot(color.aud,1);
+p=chm.aud.plot(color.aud,3);
 ylabel('Aud Ctx')
 ax1=gca;ax1.XTickLabel=[];ax1.YTick=[];
 
 ax(np)=nexttile(9,[6 1]);np=np+1;
-p=chm.vis.plot(color.vis,1);
+p=chm.vis.plot(color.vis,2);
 ylabel('Vis Ctx')
 ax1=gca;ax1.XTickLabel=[];ax1.YTick=[];
 
 ax(np)=nexttile(15,[6 1]);np=np+1;
-p=chm.hc.plot(color.hc,1);
+p=chm.hc.plot(color.hc,5);
 ylabel('HC-CA1');
 ax1=gca;ax1.YTick=[];
 
@@ -82,14 +83,13 @@ end
     
 tl.TileSpacing="none";
 linkaxes(ax(:),'x');
-% ff.save('f1')
+ff.save('f1')
 clear ax
 %%
-f2=figure(Visible="off");clf;
-% f2.Visible="off";
-f=gcf;
-% f.OuterPosition=[1100 100 1000 1300];
-f.OuterPosition=[1100 100 700 1000];
+% f2=figure(Visible="off");clf;
+f2=figure(Visible="on");
+f.OuterPosition=[1100 100 1000 1300];
+% f2.OuterPosition=[1100 100 700 1000];
 
 tl=tiledlayout(20,1);np=1;
 ax(np)=nexttile(1,[1 1]);np=np+1;

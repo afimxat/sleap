@@ -36,10 +36,13 @@ unitFile.vis='R:/DataBackup/RothschildLab/utku/Gideon/c4-5-24/units/vis.mat';
 units1=unit.Struct(unitFile.vis);
 units.vis=units1.getwindow(interval1);
 
-posFile='R:\DataBackup\RothschildLab\utku\Gideon\c4-5-24\video\labels.v001.006_Basler_acA4024-29um__24844056__20240524_135134482_Sleap export.analysis.h5_position.mat';
+posFile=['R:\DataBackup\RothschildLab\utku\Gideon\c4-5-24\video\labels.v001.006' ...
+    '_Basler_acA4024-29um__24844056__20240524_135134482_Sleap export.analysis.h5' ...
+    '_position.mat'];
 pos1=position.Struct(posFile);
 pos2=pos1.getwindow(interval1);
-pos2.table.headPosAngNormalized=movmedian(pos2.table.headPosAngNormalized,[5 5],'omitmissing');
+pos2.table.headPosAngNormalized=movmedian(pos2.table.headPosAngNormalized, ...
+    [5 5],'omitmissing');
 
 ff=logistics.FigureFactory.instance('E:\sleap\matlab');
 colors=colororder;
